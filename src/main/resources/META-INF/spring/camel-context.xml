@@ -43,41 +43,23 @@
         </dataFormats>
 
         <route>
-            <from
-                uri="file:src/data?noop=true&amp;initialDelay=5000&amp;delay=5000" />
-
-            <log
-                message="XML Message Logger: ${body}" />
-
+            <from uri="file:src/data?noop=true" />
+            <log message="XML Message Logger: ${body}" />
             <marshal ref="xmljson" />
-
             <convertBodyTo type="String" />
-
-            <log
-                message="JSON Message Logger: ${body}" />
-
-            <to
-                uri="mongodb:myDb?database=test_db&amp;collection=doc&amp;operation=insert" />
-
+            <log message="JSON Message Logger: ${body}" />
+            <to uri="mongodb:myDb?database=test_db&amp;collection=doc&amp;operation=insert" />
             <setBody>
                 <constant>{"city":"London"}</constant>
             </setBody>
-
-            <to
-                uri="mongodb:myDb?database=test_db&amp;collection=doc&amp;operation=findOneByQuery" />
-
-            <log
-                message="James Message Logger: ${body}" />
-
+            <to uri="mongodb:myDb?database=test_db&amp;collection=doc&amp;operation=findOneByQuery" />
+            <log message="James Message Logger: ${body}" />
             <setBody>
                 <constant>{"city":"Tampa"}</constant>
             </setBody>
-
-            <to
-                uri="mongodb:myDb?database=test_db&amp;collection=doc&amp;operation=findOneByQuery" />
-
-            <log
-                message="Hiram Message Logger: ${body}" />
+            <to uri="mongodb:myDb?database=test_db&amp;collection=doc&amp;operation=findOneByQuery" />
+            <log message="Hiram Message Logger: ${body}" />
         </route>
+        
     </camelContext>
 </beans>
