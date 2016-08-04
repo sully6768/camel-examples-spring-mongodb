@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Configures the Camel Context-->
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean
+        id="embeddedMongoDb"
+        class="io.github.sully6768.camel.examples.spring.mongodb.EmbeddedMongoDb"
+        init-method="init"
+        destroy-method="destroy" />
+
+    <bean
+        id="myDb"
+        class="com.mongodb.Mongo"
+        depends-on="embeddedMongoDb">
+        <constructor-arg index="0">
+            <bean class="com.mongodb.MongoURI">
+                <constructor-arg
+                    index="0"
+                    value="mongodb://localhost:27017/db" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean
+        id="mongodb"
+        class="org.apache.camel.component.mongodb.MongoDbComponent" />
+
+    <camelContext
+        id="camelContext"
+        trace="false"
+        xmlns="http://camel.apache.org/schema/spring">
+        <!-- here is a sample which processes the input files
+         (leaving them in place - see the 'noop' flag)
+          -->
+
+        <dataFormats>
+            <xmljson id="xmljson" />
+            <xmljson
+                id="xmljsonWithOptions"
+                forceTopLevelObject="true"
+                trimSpaces="true"
+                rootName="newRoot"
+                skipNamespaces="true"
+                removeNamespacePrefixes="true"
+                expandableProperties="d e" />
+        </dataFormats>
+        
+        <route id="_route1">
+            <from
+                id="_from1"
+                uri="file:src/data?noop=true" />
+
+            <log
+                id="_json_logger"
+                message="XML Message Logger: ${body}" />
+
+            <marshal ref="xmljsonWithOptions" />
+
+            <convertBodyTo type="String" />
+
+            <log
+                id="_json_logger"
+                message="JSON Message Logger: ${body}" />
+            <to uri="mongodb:myDb?database=test_db&amp;collection=doc&amp;operation=insert" />
+            <to uri="mongodb:myDb?database=test_db&amp;collection=doc&amp;operation=getColStats" />
+
+            <log
+                id="_col_stats_logger"
+                message="Column Stats Message Logger: ${body}" />
+        </route>
+    </camelContext>
+</beans>

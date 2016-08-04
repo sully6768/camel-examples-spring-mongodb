@@ -1,1 +1,1 @@
-# camel-springboot
+# camel-examples-spring-mongodb
